@@ -1,16 +1,19 @@
 package Nodes;
 
 public class HuffLeafNode extends HuffBaseNode{
-    char val;
+    private char val;
     public HuffLeafNode() {
+        isLeaf = true;
         val = '~';
         weight = Long.MIN_VALUE;
     }
-    HuffLeafNode(char val, long weight) {
+    public HuffLeafNode(char val, long weight) {
         this.val = val;
         this.weight = weight;
     }
     public void get() {
         System.out.println("everything works");
     }
+    
+    public char getChar() {return val;}
 }

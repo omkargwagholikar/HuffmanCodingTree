@@ -14,4 +14,6 @@ public class HuffInternalNode extends HuffBaseNode {
         this.right = right;
         this.weight = weight;
     }
+    public HuffBaseNode left() {return left;}
+    public HuffBaseNode right() {return right;}
 }
