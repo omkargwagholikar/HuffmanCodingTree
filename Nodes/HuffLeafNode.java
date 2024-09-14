@@ -4,7 +4,7 @@ public class HuffLeafNode extends HuffBaseNode{
     private char val;
     public HuffLeafNode() {
         isLeaf = true;
-        val = '~';
+        val = '~'; // ~ is used as an arbitrary value for default initialization
         weight = Long.MIN_VALUE;
     }
     public HuffLeafNode(char val, long weight) {

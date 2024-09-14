@@ -4,15 +4,20 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+import FileProcessing.FileProcessing;
 import Nodes.*;
 
 class HuffTree {
     private HuffBaseNode root;
     private Map<Character, Byte> mapping;
 
-    public HuffTree(Map<Character, Integer> map) {
+    public HuffTree(String path) {
         root = null;
         mapping = new HashMap<>();
+        
+        FileProcessing file = new FileProcessing();
+        Map<Character, Integer> map = file.process(path);
+
         createTree(map);
         generateEncodings(root, (byte)0);
     }
