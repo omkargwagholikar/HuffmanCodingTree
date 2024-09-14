@@ -17,6 +17,8 @@ public class HuffLeafNode extends HuffBaseNode{
     }
 
     public boolean isLeaf() {return isLeaf;}
-    
     public char getChar() {return val;}
+    public String toString() {
+        return "{isLeaf: true, weight: " + weight +", val: " + val + " }";
+    }
 }

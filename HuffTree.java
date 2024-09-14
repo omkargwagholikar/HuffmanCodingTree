@@ -1,6 +1,5 @@
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -8,12 +7,18 @@ import java.util.Queue;
 import Nodes.*;
 
 class HuffTree {
-    public HuffBaseNode root;
+    private HuffBaseNode root;
+    private Map<Character, Byte> mapping;
 
     public HuffTree(Map<Character, Integer> map) {
         root = null;
+        mapping = new HashMap<>();
         createTree(map);
+        generateEncodings(root, (byte)0);
     }
+
+    public Map<Character, Byte> getMapping() { return mapping;}
+
     private void createTree(Map<Character, Integer> map) {
         Queue<HuffBaseNode> pq = new PriorityQueue<>(
             (a, b) -> Long.compare(a.weight(), b.weight())
@@ -35,25 +40,40 @@ class HuffTree {
         root = newRoot;
     }
 
-    public List<HuffBaseNode> bfs() {
-        List<HuffBaseNode> res = new ArrayList<>();
-        Queue<HuffBaseNode> q = new LinkedList<>();
-        q.offer(root);
-        while (q.size() > 0) {
-            HuffBaseNode curr = q.poll();
-            res.add(curr);
-    
-            if (!curr.isLeaf()) {
-                try{
-                    HuffInternalNode internalNode = (HuffInternalNode) curr;
-                    if (internalNode.left() != null) q.offer(internalNode.left());
-                    if (internalNode.right() != null) q.offer(internalNode.right());
-                } catch(Exception e) {
+    public void generateEncodings(HuffBaseNode curr, byte val) {
+        if(curr == null) return;
+        if(curr.isLeaf()) {
+            mapping.put(((HuffLeafNode) curr).getChar(), val);
+            return;
+        }
+        val <<= 1;        
+        generateEncodings(((HuffInternalNode)curr).left(), val);
+        val ^= (byte)1;
+        generateEncodings(((HuffInternalNode) curr).right(), val);
+    }
 
-                }
+    public void bfs() {
+        Queue<HuffBaseNode> q = new LinkedList<>();
+        if(root == null) {
+            System.out.println("null");
+            return;
+        }
+        q.offer(root);
+        q.offer(null);
+        while (q.size() > 1) {
+            HuffBaseNode curr = q.poll();
+            if(curr == null) {
+                System.out.println();
+                q.offer(null);
+                continue;
+            }
+            System.out.print(curr.toString() + " ");
+            if (!curr.isLeaf()) {
+                HuffInternalNode internalNode = (HuffInternalNode) curr;
+                if (internalNode.left() != null) q.offer(internalNode.left());
+                if (internalNode.right() != null) q.offer(internalNode.right());
             }
         }
-        return res;
     }
     
 }

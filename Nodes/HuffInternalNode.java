@@ -16,4 +16,7 @@ public class HuffInternalNode extends HuffBaseNode {
     }
     public HuffBaseNode left() {return left;}
     public HuffBaseNode right() {return right;}
+    public String toString() {
+        return "{isLeaf: false, weight:" + weight +"}" ;
+    }
 }
