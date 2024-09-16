@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -70,6 +72,30 @@ public class FileProcessing {
         } catch(Exception e) {
             System.err.println(e.getMessage());
             return "";
+        }
+    }
+
+    public static void writeMapToFile(Map<Character, String> map, String filePath) {
+        try {
+            FileOutputStream fos = new FileOutputStream(filePath);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(map);
+            oos.close();
+        } catch( Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static Map<Character, String> readMapFromFile(String filePath) {
+        try {
+            FileInputStream fis = new FileInputStream(filePath);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            Map<Character, String> map =  (Map<Character, String>) ois.readObject();
+            ois.close();
+            return map;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
         }
     }
 }
