@@ -1,29 +1,34 @@
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
 import FileProcessing.FileProcessing;
-import Nodes.*;
+import Nodes.HuffBaseNode;
+import Nodes.HuffInternalNode;
+import Nodes.HuffLeafNode;
 
 class HuffTree {
     private HuffBaseNode root;
-    private Map<Character, Byte> mapping;
+    private Map<Character, String> mapping;
     private Map<Character, Integer> freqMap;
+    private FileProcessing file;
+    public String encodedFile;
 
     public HuffTree(String path) {
         root = null;
         mapping = new HashMap<>();
         
-        FileProcessing file = new FileProcessing(path);
+        file = new FileProcessing(path);
         freqMap = file.process();
 
         createTree(freqMap);
-        generateEncodings(root, (byte)0);
+        generateEncodings(root, "");
     }
 
-    public Map<Character, Byte> getMapping() { return mapping;}
+    public Map<Character, String> getMapping() { return mapping;}
     public Map<Character, Integer>getFreqMap(){return freqMap;}
     private void createTree(Map<Character, Integer> freqMap) {
         Queue<HuffBaseNode> pq = new PriorityQueue<>(
@@ -46,16 +51,15 @@ class HuffTree {
         root = newRoot;
     }
 
-    public void generateEncodings(HuffBaseNode curr, byte val) {
+    public void generateEncodings(HuffBaseNode curr, String val) {
         if(curr == null) return;
         if(curr.isLeaf()) {
             mapping.put(((HuffLeafNode) curr).getChar(), val);
             return;
         }
-        val <<= 1;        
-        generateEncodings(((HuffInternalNode)curr).left(), val);
-        val ^= (byte)1;
-        generateEncodings(((HuffInternalNode) curr).right(), val);
+              
+        generateEncodings(((HuffInternalNode)curr).left(), val+"0");
+        generateEncodings(((HuffInternalNode) curr).right(), val+"1");
     }
 
     public void bfs() {
@@ -81,5 +85,41 @@ class HuffTree {
             }
         }
     }
-    
+
+    public void getChar(String enc) {
+        HuffBaseNode temp = root;
+        try {
+            for (int i = 0; i < enc.length(); i++) {
+                char c = enc.charAt(i);
+                if (temp.isLeaf()) {
+                    throw new IllegalArgumentException("Invalid encoding, reached a leaf node prematurely.");
+                }
+                
+                if (c == '0') {
+                    temp = ((HuffInternalNode) temp).left();
+                } else if (c == '1') {
+                    temp = ((HuffInternalNode) temp).right();
+                } else {
+                    throw new IllegalArgumentException("Invalid character in encoding: " + c);
+                }
+            }
+            
+            if (!temp.isLeaf()) {
+                throw new IllegalArgumentException("The encoding does not represent a leaf node.");
+            }            
+            System.out.println(((HuffLeafNode) temp).getChar());            
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void encodeFile(String path) {
+        List<String> lines = file.getLines();
+        StringBuilder sb = new StringBuilder();
+        for(String line: lines){
+            for(int i=0; i<line.length(); i++) sb.append(mapping.get(line.charAt(i)));
+        }
+        encodedFile = sb.toString();
+        file.writeStringToFile(encodedFile, path);
+    }
 }

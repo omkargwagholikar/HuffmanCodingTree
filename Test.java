@@ -3,20 +3,7 @@ public class Test {
         String path = "./TextFiles/source.txt";
         HuffTree root = new HuffTree(path);
         System.out.println(root.getMapping().toString());
-        byte b = -117;
-        System.out.println();
-        for(int i=0; i<8; i++) {
-            System.out.print(b & 1);
-            b >>>= 1;
-        }
-        b = -117;
-        System.out.println();
-        for(int i=0; i<8; i++) {
-            System.out.print(b & 1);
-            b >>= 1;
-        }
-        System.out.println();
-        
+        root.encodeFile("./TextFiles/encodedFile.bin");
     }
 }
 

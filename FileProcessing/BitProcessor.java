@@ -6,9 +6,9 @@ import java.io.FileOutputStream;
 import java.util.Stack;
 
 public class BitProcessor {
-    public void bitWriter(String path, byte [] vals) {                
+    public void bitWriter(String path, int [] vals) {                
         Stack<Integer> stack = new Stack<>();
-        for(byte val: vals) {            
+        for(int val: vals) {            
             for(int i=0; i<8; i++) {
                 stack.push(val & 1);
                 val >>= 1;
