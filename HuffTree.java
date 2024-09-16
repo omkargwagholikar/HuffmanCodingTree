@@ -15,7 +15,7 @@ class HuffTree {
     private Map<Character, String> mapping;
     private Map<Character, Integer> freqMap;
     private FileProcessing file;
-    public String encodedFile;
+    private String encodedFile;
 
     public HuffTree(String path) {
         root = null;
@@ -29,7 +29,9 @@ class HuffTree {
     }
 
     public Map<Character, String> getMapping() { return mapping;}
-    public Map<Character, Integer>getFreqMap(){return freqMap;}
+    public Map<Character, Integer>getFreqMap(){ return freqMap;}
+    public String getEncodedFile(){ return encodedFile;}
+
     private void createTree(Map<Character, Integer> freqMap) {
         Queue<HuffBaseNode> pq = new PriorityQueue<>(
             (a, b) -> Long.compare(a.weight(), b.weight())
@@ -113,7 +115,7 @@ class HuffTree {
         }
     }
 
-    public void encodeFile(String path) {
+    public void compress(String path) {
         List<String> lines = file.getLines();
         StringBuilder sb = new StringBuilder();
         for(String line: lines){
@@ -121,5 +123,21 @@ class HuffTree {
         }
         encodedFile = sb.toString();
         file.writeStringToFile(encodedFile, path);
+    }
+
+    public String deCompress(String path) {
+        Map<String, Character> map = new HashMap<>();
+        StringBuilder sb = new StringBuilder();
+        for(char c: getMapping().keySet()) map.put(mapping.get(c), c);
+        encodedFile = file.readStringFromFile(path);
+        String curr = "";
+        for(int i=0; i<encodedFile.length(); i++) {
+            curr += encodedFile.charAt(i);
+            if(map.containsKey(curr)) {
+                sb.append(map.get(curr));
+                curr = "";
+            }
+        }
+        return sb.toString();
     }
 }
