@@ -10,26 +10,27 @@ import Nodes.*;
 class HuffTree {
     private HuffBaseNode root;
     private Map<Character, Byte> mapping;
+    private Map<Character, Integer> freqMap;
 
     public HuffTree(String path) {
         root = null;
         mapping = new HashMap<>();
         
-        FileProcessing file = new FileProcessing();
-        Map<Character, Integer> map = file.process(path);
+        FileProcessing file = new FileProcessing(path);
+        freqMap = file.process();
 
-        createTree(map);
+        createTree(freqMap);
         generateEncodings(root, (byte)0);
     }
 
     public Map<Character, Byte> getMapping() { return mapping;}
-
-    private void createTree(Map<Character, Integer> map) {
+    public Map<Character, Integer>getFreqMap(){return freqMap;}
+    private void createTree(Map<Character, Integer> freqMap) {
         Queue<HuffBaseNode> pq = new PriorityQueue<>(
             (a, b) -> Long.compare(a.weight(), b.weight())
         );
-        for(char c: map.keySet()) {
-            pq.offer(new HuffLeafNode(c, (long)map.get(c)));
+        for(char c: freqMap.keySet()) {
+            pq.offer(new HuffLeafNode(c, (long)freqMap.get(c)));
         }
         if(pq.size() == 0) {
             System.out.println("The map seems to be empty");

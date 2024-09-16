@@ -7,7 +7,11 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class FileProcessing {
-    public Map<Character, Integer> process(String path) {
+    String path;
+    public FileProcessing(String path) {
+        this.path = path;
+    }
+    public Map<Character, Integer> process() {
         Map<Character, Integer> map = new HashMap<>();
         try {
             File myObj = new File(path);
