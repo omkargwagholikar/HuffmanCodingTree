@@ -22,7 +22,7 @@ class HuffTree {
         mapping = new HashMap<>();
         
         file = new FileProcessing(path);
-        freqMap = file.process();
+        freqMap = file.generateFreqMap();
 
         createTree(freqMap);
         generateEncodings(root, "");
@@ -118,18 +118,22 @@ class HuffTree {
     public void compress(String path) {
         List<String> lines = file.getLines();
         StringBuilder sb = new StringBuilder();
+        Map<String, Character> map = new HashMap<>();
+        for(char c: getMapping().keySet()) map.put(mapping.get(c), c);
         for(String line: lines){
             for(int i=0; i<line.length(); i++) sb.append(mapping.get(line.charAt(i)));
         }
         encodedFile = sb.toString();
-        file.writeStringToFile(encodedFile, path);
+        FileProcessing.writeToFile(encodedFile, map, path);
     }
 
-    public String deCompress(String path) {
-        Map<String, Character> map = new HashMap<>();
+    @SuppressWarnings("unchecked")
+    public void deCompress(String compPath, String opPath) {
+        Object [] objs = FileProcessing.readFromFile(compPath);
         StringBuilder sb = new StringBuilder();
-        for(char c: getMapping().keySet()) map.put(mapping.get(c), c);
-        encodedFile = file.readStringFromFile(path);
+
+        Map<String, Character> map = (Map<String, Character>) objs[0];
+        encodedFile = (String) objs[1];
         String curr = "";
         for(int i=0; i<encodedFile.length(); i++) {
             curr += encodedFile.charAt(i);
@@ -138,6 +142,6 @@ class HuffTree {
                 curr = "";
             }
         }
-        return sb.toString();
+        FileProcessing.writeStringToFile(sb.toString(), opPath);
     }
 }

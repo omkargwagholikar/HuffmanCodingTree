@@ -1,16 +1,19 @@
 package FileProcessing;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileInputStream;
-import java.io.ObjectOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.List;
-import java.util.ArrayList;
 
 public class FileProcessing {
     private List<String> lines;
@@ -19,13 +22,13 @@ public class FileProcessing {
         this.path = path;
         lines = new ArrayList<>();
     }
-    public Map<Character, Integer> process() {
+    public Map<Character, Integer> generateFreqMap() {
         Map<Character, Integer> map = new HashMap<>();
         try {
             File myObj = new File(path);
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
-                String data = myReader.nextLine();
+                String data = myReader.nextLine() + "~~";
                 lines.add(data);
                 for(int i=0; i<data.length(); i++) map.put(data.charAt(i), 1 + map.getOrDefault(data.charAt(i), 0));
             }
@@ -36,10 +39,12 @@ public class FileProcessing {
         }
         return map;
     }
+
     public List<String> getLines() {
         return lines;
     }
-    public void writeStringToFile(String binaryString, String path) {
+
+    public static void writeToFile(String binaryString, Map<String, Character> map, String filePath) {
         int byteArrayLength = (binaryString.length() + 7) / 8; 
         byte[] byteArray = new byte[byteArrayLength];
 
@@ -48,54 +53,43 @@ public class FileProcessing {
                 byteArray[i / 8] |= (1 << (7 - (i % 8))); 
             }
         }
-
-        try (FileOutputStream fos = new FileOutputStream(path)) {
-            fos.write(byteArray);
-        } catch (Exception e){
-            System.err.println(e.getMessage());
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))) {
+            oos.writeObject(map);
+            oos.write(byteArray);        
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    public String readStringFromFile(String path) {
-        try {
-            FileInputStream fis = new FileInputStream(path);
-            byte[] byteArray = fis.readAllBytes();
+    @SuppressWarnings("unchecked")
+    public static Object [] readFromFile(String path) {
+        Object []res  = new Object[2];
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path))) {
+            res[0] = (HashMap<String, Character>) ois.readObject();
+            byte[] byteArray = ois.readAllBytes();
             StringBuilder binaryString = new StringBuilder();
             for (byte b : byteArray) {
                 for (int i = 7; i >= 0; i--) {
                     binaryString.append((b >> i) & 1);
                 }
             }
-            fis.close();            
-            return binaryString.toString();
-
-        } catch(Exception e) {
-            System.err.println(e.getMessage());
-            return "";
-        }
-    }
-
-    public static void writeMapToFile(Map<Character, String> map, String filePath) {
-        try {
-            FileOutputStream fos = new FileOutputStream(filePath);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(map);
-            oos.close();
-        } catch( Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static Map<Character, String> readMapFromFile(String filePath) {
-        try {
-            FileInputStream fis = new FileInputStream(filePath);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            Map<Character, String> map =  (Map<Character, String>) ois.readObject();
-            ois.close();
-            return map;
+            res[1] = binaryString.toString();
+            return res;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             return null;
+        }
+    }
+
+    public static void writeStringToFile(String content, String path) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
+            String [] lines = content.split("~~");
+            for(String line: lines) {
+                writer.write(line + "\n");
+            }
+            
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
